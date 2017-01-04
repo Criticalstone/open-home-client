@@ -1,8 +1,21 @@
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+
 #define NBR_TGGL 1
 #define NBR_SNSR 1
+#define NBR_DHT 1
 
 int toggle[NBR_TGGL] = {13};
 int sensor[NBR_SNSR] = {16};
+int dhtsensorpins[NBR_DHT] = {2};
+
+// Add a line like this for each dht sensor you have
+// valid values for second argument: DHT22, DHT11, DHT21 
+// example: DHT_Unified dht(pin DHT22
+DHT_Unified dhtsensors[NBR_DHT] = {
+  DHT_Unified(dhtsensorpins[0], DHT22)
+};
 
 typedef struct {
   uint16_t pin;
@@ -11,6 +24,11 @@ typedef struct {
 
 void setup() {
   Serial.begin(115200);
+
+  // Initializes dht sensors
+  for (int i = 0; i < NBR_DHT; i++) {
+    dhtsensors[i].begin();
+  }
 
   // Initializes toggle modules
   for (int i = 0; i < NBR_TGGL; i++) {
@@ -69,14 +87,29 @@ int typeOfPin(int pin) {
     }
   }
 
+  for (int i = 0; i < NBR_DHT; i++) {
+    if (dhtsensorpins[i] == pin) {
+      return 2;
+    }
+  }
+
   return -1;
 }
 
 String getStatus(int pin) {
   switch (typeOfPin(pin)) {
-    case -1: return String(-1); 
     case 0: return String(statusDigital(pin)); 
     case 1: return String(statusAnalog(pin)); 
+    case 2: return statusDht(pin);
+    default: return String(-1); 
+  }
+}
+
+int getIndexOfDht(int pin) {
+  for (int i = 0; i < NBR_DHT; i++) {
+    if (dhtsensorpins[i] == pin) {
+      return i;
+    }
   }
 }
 
@@ -108,4 +141,25 @@ float statusAnalog(int pin) {
 // Reads the digital value of an output pin
 int statusDigital(int pin) {
   return digitalRead(pin);
+}
+
+String statusDht(int pin) {
+  String result = "";
+  int dhtindex = getIndexOfDht(pin);
+  sensors_event_t event;
+
+  dhtsensors[dhtindex].temperature().getEvent(&event);
+  if (isnan(event.temperature)) {
+    return "-1";
+  }
+  result += event.temperature;
+  result += ";";
+
+  dhtsensors[dhtindex].humidity().getEvent(&event);
+  if (isnan(event.relative_humidity)) {
+    return "-1";
+  }
+  result += event.relative_humidity;
+
+  return result;
 }
