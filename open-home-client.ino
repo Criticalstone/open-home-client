@@ -57,4 +57,7 @@ boolean off(int pin) {
   return digitalRead(pin) == LOW;
 }
 
-
+// Reads the value of a simple passive analog sensor
+float statusAnalog(int pin) {
+  return analogRead(pin);
+}
