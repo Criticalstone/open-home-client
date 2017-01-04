@@ -25,7 +25,12 @@ void loop() {
   } else if (*cmd.action == 'a') {
     success = off(cmd.pin);
   }
-  Serial.println(success);
+  
+  if (success) {
+    Serial.print("True");
+  } else {
+    Serial.print("False");
+  }
 }
 
 // Read command from serial and parse it into a command struct
