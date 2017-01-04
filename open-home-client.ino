@@ -16,15 +16,16 @@ void setup() {
 }
 
 Command cmd;
+boolean success;
 
 void loop() {
   cmd = readCommand();
   if (*cmd.action == 'p') {
-    on(cmd.pin);
-    Serial.println("Hej");
+    success = on(cmd.pin);
   } else if (*cmd.action == 'a') {
-    off(cmd.pin);
+    success = off(cmd.pin);
   }
+  Serial.println(success);
 }
 
 // Read command from serial and parse it into a command struct
@@ -32,8 +33,6 @@ Command readCommand() {
   while (Serial.available() < 3) {};
   uint16_t pin = Serial.parseInt();
   char c = Serial.read();
-  Serial.println(pin);
-  Serial.println(c);
   return (Command) {
     pin, c
   };
