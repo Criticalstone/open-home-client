@@ -2,19 +2,20 @@
 #include <DHT.h>
 #include <DHT_U.h>
 
-#define NBR_TGGL 1
+#define NBR_TGGL 2
 #define NBR_SNSR 1
-#define NBR_DHT 1
+#define NBR_DHT 2
 
-int toggle[NBR_TGGL] = {13};
+int togglers[NBR_TGGL] = {13, 7};
 int sensor[NBR_SNSR] = {16};
-int dhtsensorpins[NBR_DHT] = {2};
+int dhtsensorpins[NBR_DHT] = {2,3};
 
 // Add a line like this for each dht sensor you have
 // valid values for second argument: DHT22, DHT11, DHT21 
 // example: DHT_Unified dht(pin DHT22
 DHT_Unified dhtsensors[NBR_DHT] = {
-  DHT_Unified(dhtsensorpins[0], DHT22)
+  DHT_Unified(dhtsensorpins[0], DHT22),
+  DHT_Unified(dhtsensorpins[1], DHT22)
 };
 
 typedef struct {
@@ -32,7 +33,7 @@ void setup() {
 
   // Initializes toggle modules
   for (int i = 0; i < NBR_TGGL; i++) {
-    pinMode(toggle[i], OUTPUT);  
+    pinMode(togglers[i], OUTPUT);  
   }
 
 }
@@ -48,6 +49,8 @@ void loop() {
     success = on(cmd.pin);
   } else if (*cmd.action == 'a') {
     success = off(cmd.pin);
+  } else if (*cmd.action == 't') {
+    success = toggle(cmd.pin);
   } else if (*cmd.action == 's') {
     value = getStatus(cmd.pin);
   }
@@ -76,7 +79,7 @@ Command readCommand() {
 // Checks what type a pin is, returns -1 if the pin is not initialized
 int typeOfPin(int pin) {
   for (int i = 0; i < NBR_TGGL; i++) {
-    if (toggle[i] == pin) {
+    if (togglers[i] == pin) {
       return 0;
     }
   }
@@ -131,6 +134,12 @@ boolean off(int pin) {
   }
   digitalWrite(pin, LOW);
   return digitalRead(pin) == LOW;
+}
+
+boolean toggle(int pin) {
+  int state = digitalRead(pin);
+  digitalWrite(pin, !digitalRead(pin));
+  return state != digitalRead(pin);
 }
 
 // Reads the value of a simple passive analog sensor
