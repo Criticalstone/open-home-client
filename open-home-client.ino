@@ -53,7 +53,7 @@ void loop() {
   }
 
   if (value != "") {
-    Serial.print(value + ";");
+    Serial.print(value);
   } else {
     if (success) {
       Serial.print("True");
