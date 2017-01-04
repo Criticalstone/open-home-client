@@ -1,8 +1,8 @@
 #define NBR_TGGL 1
-#define NBR_SNSR 0
+#define NBR_SNSR 1
 
 int toggle[NBR_TGGL] = {13};
-int sensor[NBR_SNSR] = {};
+int sensor[NBR_SNSR] = {16};
 
 typedef struct {
   uint16_t pin;
@@ -17,10 +17,6 @@ void setup() {
     pinMode(toggle[i], OUTPUT);  
   }
 
-  // Initializes sensor modules
-  for (int i = 0; i < NBR_SNSR; i++) {
-    pinMode(sensor[i], INPUT);
-  }
 }
 
 Command cmd;
@@ -106,7 +102,7 @@ boolean off(int pin) {
 
 // Reads the value of a simple passive analog sensor
 float statusAnalog(int pin) {
-  return analogRead(pin);
+  return analogRead(A0);
 }
 
 // Reads the digital value of an output pin
